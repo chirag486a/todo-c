@@ -12,6 +12,8 @@ build/%.o: src/%.c
 main: $(OBJ)
 	$(CC) -o $@ $^ $(CFLAGS)
 
-.PHONY: clean
+.PHONY: clean run
+run: main
+	./main
 clean:
 	rm -f main $(OBJ) $(DEPS)
