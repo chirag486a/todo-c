@@ -42,9 +42,11 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.c $(DEPS)
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-.PHONY: run clean
-run: all
-	./main
+.PHONY: run clean initDep
+initDep:
+	touch ./data/.userdata
+run: initDep all
+	./main 
 
 clean:
 	rm -rf $(BUILDDIR)/*.o main

@@ -8,10 +8,26 @@ int userLogin(User *user, User *foundUser)
   return login(user, foundUser);
 }
 
+/*
+Returns 1: Username Already Taken
+Returns 2: Unable to Initialize User Directory
+Returns 0: On Success
+*/
 int userSignUp(User *user, User *storedUser)
 {
   getUserDetails(user);
-  return signUp(user, storedUser);
+  int signUpStatus = signUp(user, storedUser);
+  if (signUpStatus == 1)
+  {
+
+    println("User name already taken");
+    return 1;
+  }
+  else if (signUpStatus != 0)
+  {
+    println("Something went wrong");
+    return -1;
+  }
 }
 
 int loginSignUp(User *user)

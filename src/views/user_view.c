@@ -8,9 +8,11 @@
 void getUserDetails(User *user)
 {
 
+  // clearTerminal();
   char username[USERNAME_LEN];
   char userpaswd[USERPASSWORD_LEN];
 
+  println("Please Enter the following Details");
   // GET Username
   println("Enter your username");
   char *notErr = fgets(username, USERNAME_LEN, stdin);
@@ -24,17 +26,22 @@ void getUserDetails(User *user)
   if (notErr)
     removeNewLine(userpaswd);
   strncpy(user->userpassword, userpaswd, USERPASSWORD_LEN - 1);
+  // clearTerminal();
 }
 
 int loginSignUpMenu()
 {
 
+  // clearTerminal();
+  println("To Enter our app");
+  println("Please Enter");
   println("1. Login");
   println("2. Signup");
 
   int option;
   scanf("%d", &option);
   flushStdin();
+  // clearTerminal();
 
   return option;
 }
