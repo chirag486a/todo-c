@@ -6,26 +6,25 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <stdlib.h>
+#include <time.h>
 
 char userTodoDir[FILENAME_MAX] = USER_TODO_DATA_DIR;
 char openedFile[FILENAME_MAX];
-size_t todoListDefaultCapacity;
+size_t todoListDefaultCapacity = 10;
+TodoArray *todoList;
 
-void initTodoArray(TodoArray *array, size_t capicity)
+void appendTodo(Todo todo)
 {
-  array->todos = (Todo *)malloc(sizeof(Todo) * capicity);
-  array->size = 0;
-  array->capacity = capicity;
-};
+  println("Size: %d", todoList->size);
+  println("Capacity: %d", todoList->capacity);
 
-void appendTodo(TodoArray *array, Todo todo)
-{
-  if (array->size >= array->capacity)
+  if (todoList->size >= todoList->capacity)
   {
-    array->capacity *= 2;
-    array->todos = (Todo *)malloc(sizeof(Todo) * array->capacity);
+    todoList->capacity *= 2;
+    todoList->todos = (Todo *)realloc(todoList->todos, sizeof(Todo) * todoList->capacity);
   }
-  array->todos[array->size++] = todo;
+  time(&(todo.timestamp));
+  todoList->todos[todoList->size++] = todo;
 }
 void removeTodoById(TodoArray *array, int id)
 {
@@ -77,48 +76,70 @@ void prepTodoDir(const User *user)
   println("Setting user directory: %s", userTodoDir);
 }
 
-int loadTodos(TodoArray *array, char *filename)
+int loadTodos(char *filename)
 {
   FILE *fp = fopen(filename, "rb");
   if (fp == NULL)
   {
     return -1;
   }
-  // Read the size of array
 
-  TodoArray *todoList = malloc(sizeof(TodoArray));
-  array = todoList;
-
-  if (fread(&(todoList->size), sizeof(size_t), 1, fp) == 0)
+  todoList = malloc(sizeof(TodoArray));
+  if (fread(&(todoList->size), sizeof(size_t), 1, fp) != 1)
   {
+    free(todoList);
     fclose(fp);
-    return 0;
+    return 1;
   }
 
   // Allocate memory for the array
+  println("LOADER SIZE: %d", todoList->size);
   todoList->capacity = todoList->size;
   todoList->todos = (Todo *)malloc(sizeof(Todo) * todoList->capacity);
 
-  fread(todoList->todos, sizeof(Todo), todoList->size, fp);
+  if (fread(todoList->todos, sizeof(Todo), todoList->size, fp) != todoList->size)
+  {
+    freeTodoArray(todoList);
+    free(todoList);
+    fclose(fp);
+    return 1;
+  }
+  println("file loaded successfully");
   fclose(fp);
-  return todoList->size;
+  return 0;
 }
 
-int saveTodoArrayToFile(TodoArray *todoList, const char *filename)
+int runSave()
 {
-  FILE *fp = fopen(openedFile, "rb");
+  FILE *fp = fopen(openedFile, "wb");
   if (fp == NULL)
   {
     return 1;
   }
   // Write the size of the array
-  fwrite(&todoList->size, sizeof(size_t), 1, fp);
+  int err1 = fwrite(&todoList->size, sizeof(size_t), 1, fp);
+  if (err1 != 1)
+  {
+
+    freeTodoArray(todoList);
+    free(todoList);
+    fclose(fp);
+    return 1;
+  }
 
   // Write the array data
-  fwrite(&todoList->todos, sizeof(Todo), todoList->size, fp);
+  int err2 = fwrite(todoList->todos, sizeof(Todo), todoList->size, fp);
+
+  if (err2 != todoList->size)
+  {
+    freeTodoArray(todoList);
+    free(todoList);
+    fclose(fp);
+    return 1;
+  }
 
   fclose(fp);
-  return 0;
+  return todoList->size;
 }
 
 int runNew(char *filename)
@@ -151,13 +172,22 @@ int runOpen(char *filename)
   {
     strcpy(openedFile, temp);
     println("File %s Opened", openedFile);
-    TodoArray todoList;
-    if (loadTodos(&todoList, openedFile) > 0)
+
+    // check if file already exist
+    if (loadTodos(openedFile) == 0)
+    {
       return 0;
-    initTodoArray(&todoList, todoListDefaultCapacity);
+    }
+
+    todoList = malloc(sizeof(TodoArray));
+
+    // Initialize todo list
+    todoList->capacity = todoListDefaultCapacity;
+    todoList->todos = (Todo *)malloc(sizeof(Todo) * todoList->capacity);
+    todoList->size = 0;
     return 0;
   }
-  return 1;
+  return -1;
 }
 
 int runDelete(char *filename)
@@ -181,8 +211,11 @@ int runClose(char *filename)
   {
     return 1;
   };
+
   strcpy(filename, openedFile);
   strcpy(openedFile, "");
+  freeTodoArray(todoList);
+  free(todoList);
   return 0;
 }
 
@@ -231,4 +264,9 @@ int runList(char **files, int *numFiles, int *writeFiles)
   closedir(d);
 
   return 0;
+}
+
+TodoArray *runLook()
+{
+  return todoList;
 }

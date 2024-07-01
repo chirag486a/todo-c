@@ -52,10 +52,11 @@ void showHelp()
   println("ls/list - List files");
 
   // INSIDE FILE OPERATION
-  println("a/append - Append todo to file {OPEN}");
+  println("a/append - Add Todo {OPEN}");
+  println("s/save - Save Todo {OPEN}");
   println("r/remove - Remove todo from file {OPEN}");
   println("e/edit - Edit todo from file {OPEN}");
-  println("s/show 1 {priority = 1} [1,2,3,4] [Critical, High, Medium, Later]");
+  println("l/look 1 {priority = 1} [1,2,3,4] [Critical, High, Medium, Later]");
 }
 
 int identifyCommand(const char *command)
@@ -92,6 +93,10 @@ int identifyCommand(const char *command)
   {
     return APPEND;
   }
+  else if (strcmp(command, "s") == 0 || strcmp(command, "save") == 0)
+  {
+    return SAVE;
+  }
   else if (strcmp(command, "r") == 0 || strcmp(command, "remove") == 0)
   {
     return REMOVE;
@@ -100,9 +105,9 @@ int identifyCommand(const char *command)
   {
     return EDIT;
   }
-  else if (strcmp(command, "s") == 0 || strcmp(command, "show") == 0)
+  else if (strcmp(command, "l") == 0 || strcmp(command, "look") == 0)
   {
-    return SHOW;
+    return LOOK;
   }
   else
   {
@@ -129,12 +134,14 @@ const char *getCommandString(int command)
     return "list";
   case APPEND:
     return "append";
+  case SAVE:
+    return "save";
   case REMOVE:
     return "remove";
   case EDIT:
     return "edit";
-  case SHOW:
-    return "show";
+  case LOOK:
+    return "look";
   default:
     return "unknown";
   }
@@ -183,5 +190,39 @@ void displayList(char **files, int writeFiles)
   for (size_t i = 0; i < writeFiles; i++)
   {
     println(" %s", files[i]);
+  }
+}
+
+void askTodo(Todo *todo)
+{
+  println("Enter task Todo [NOTE: not long then %d character]", TODO_DESCRIPTION_SIZE);
+
+  fgets(todo->description, TODO_DESCRIPTION_SIZE, stdin);
+  removeNewLine(todo->description);
+
+  while (1)
+  {
+    println("Select your priority");
+    println("1) CRITICAL");
+    println("2) HIGH");
+    println("3) MEDIUM");
+    println("4) LATER");
+
+    int p;
+
+    scanf("%d", &p);
+    flushStdin();
+    todo->priority = (Priority)p;
+
+    if (
+        !(todo->priority == CRITICAL ||
+          todo->priority == HIGH ||
+          todo->priority == MEDIUM ||
+          todo->priority == LATER))
+    {
+      println("Please Input valid Priority");
+      continue;
+    }
+    break;
   }
 }

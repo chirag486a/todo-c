@@ -113,7 +113,29 @@ int listCmdHandler()
   return 0;
 }
 
-int appendCmdHandler() {}
+int appendCmdHandler()
+{
+  Todo task;
+  askTodo(&task);
+  appendTodo(task);
+  println(task.description);
+  return 0;
+}
+
+int saveCmdHandler()
+{
+  return runSave();
+}
+
+int lookCmdHanlder()
+{
+  TodoArray *todoList = runLook();
+  for (size_t i = 0; i < todoList->size; i++)
+  {
+    println("%d %s", i, todoList->todos[i].description);
+  }
+  return 0;
+}
 
 int runCommand(int option)
 {
@@ -137,7 +159,13 @@ int runCommand(int option)
     return listCmdHandler();
     break;
   case APPEND:
-
+    return appendCmdHandler();
+    break;
+  case SAVE:
+    return saveCmdHandler();
+    break;
+  case LOOK:
+    return lookCmdHanlder();
     break;
 
   default:

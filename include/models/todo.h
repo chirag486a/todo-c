@@ -4,6 +4,8 @@
 #include "models/user.h"
 #include <time.h>
 
+#define TODO_DESCRIPTION_SIZE 256
+
 typedef enum Priority
 {
   CRITICAL = 1,
@@ -16,19 +18,18 @@ typedef struct Todo
 {
 
   int id;
-  char description[256];
+  char description[TODO_DESCRIPTION_SIZE];
   Priority priority;
   time_t timestamp;
 
 } Todo;
 
-typedef struct
+typedef struct TodoArray
 {
   Todo *todos;
   size_t size;
   size_t capacity;
 } TodoArray;
-
 
 typedef enum
 {
@@ -40,9 +41,13 @@ typedef enum
   CLOSE,
   LIST,
   APPEND,
+  SAVE,
+
   REMOVE,
   EDIT,
-  SHOW,
+  LOOK,
+  EXIT,
+
   UNKNOWN
 } Command;
 
@@ -52,5 +57,9 @@ int runOpen(char *filename);
 int runDelete(char *filename);
 int runClose(char *filename);
 int runList(char **files, int *numFiles, int *writeFiles);
+int runSave();
+TodoArray *runLook();
+
+void appendTodo(Todo todo);
 
 #endif
