@@ -31,3 +31,7 @@ void flushStdin() {
   int c;
   while((c = getchar()) != '\n' && c != EOF) {}
 }
+
+void displayPrompt() {
+  printf(" > ");
+}

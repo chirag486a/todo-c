@@ -7,7 +7,7 @@
 
 // User Data Storage
 #define USER_DATA_FILE "./data/.userdata"
-#define USER_TODO_DATA_DIR "./data/Users_Data/"
+#define USER_TODO_DATA_DIR "./data/Users_Todo/"
 #define ID_LEN 11
 #define MAX_USERS 100
 

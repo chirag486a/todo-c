@@ -15,6 +15,7 @@ void getUserDetails(User *user)
   println("Please Enter the following Details");
   // GET Username
   println("Enter your username");
+  displayPrompt();
   char *notErr = fgets(username, USERNAME_LEN, stdin);
   if (notErr)
     removeNewLine(username);
@@ -22,6 +23,7 @@ void getUserDetails(User *user)
 
   // GET Userpasswd
   println("Enter your password");
+  displayPrompt();
   notErr = fgets(userpaswd, USERPASSWORD_LEN, stdin);
   if (notErr)
     removeNewLine(userpaswd);
@@ -38,7 +40,9 @@ int loginSignUpMenu()
   println("1. Login");
   println("2. Signup");
 
+  displayPrompt();
   int option;
+
   scanf("%d", &option);
   flushStdin();
   // clearTerminal();

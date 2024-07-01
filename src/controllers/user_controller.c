@@ -2,10 +2,12 @@
 #include <stdio.h>
 #include "controllers/user_controller.h"
 
-int userLogin(User *user, User *foundUser)
+int userLogin(User *storedUser)
 {
-  getUserDetails(user);
-  return login(user, foundUser);
+  User user;
+  getUserDetails(&user);
+
+  return login(&user, storedUser);
 }
 
 /*
@@ -13,35 +15,35 @@ Returns 1: Username Already Taken
 Returns 2: Unable to Initialize User Directory
 Returns 0: On Success
 */
-int userSignUp(User *user, User *storedUser)
+int userSignUp(User *storedUser)
 {
-  getUserDetails(user);
-  int signUpStatus = signUp(user, storedUser);
+  User user;
+  getUserDetails(&user);
+  int signUpStatus = signUp(&user, storedUser);
   if (signUpStatus == 1)
   {
-
     println("User name already taken");
     return 1;
   }
-  else if (signUpStatus != 0)
+  if (signUpStatus != 0)
   {
     println("Something went wrong");
     return -1;
   }
+  return 0;
 }
 
 int loginSignUp(User *user)
 {
   int option = loginSignUpMenu();
-  User storedUser;
 
   switch (option)
   {
   case 1:
-    return userLogin(user, &storedUser);
+    return userLogin(user);
     break;
   case 2:
-    return userSignUp(user, &storedUser);
+    return userSignUp(user);
     break;
 
   default:

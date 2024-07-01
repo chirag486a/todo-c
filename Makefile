@@ -49,4 +49,4 @@ run: initDep all
 	./main 
 
 clean:
-	rm -rf $(BUILDDIR)/*.o main
+	rm -rf $(BUILDDIR)/*.o ./main

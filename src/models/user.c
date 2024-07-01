@@ -15,7 +15,7 @@ int loadedUserNum;
 int login(User *loginUser, User *foundUser)
 {
   if (findUser(loginUser, foundUser) != 0) return 1;
-  if(strcmp(foundUser->userpassword, loginUser->userpassword) != 0)
+  if (strcmp(foundUser->userpassword, loginUser->userpassword) != 0)
     return 2;
 
   return 0;
@@ -135,6 +135,7 @@ int signUp(User *newUser, User *storedUser)
     println("Error opening file");
     return -1;
   }
+  
   // Store User
   int initStatus = initUser(newUser);
   if (initStatus != 0)
@@ -152,7 +153,7 @@ int findUser(User *searchUser, User *foundUser)
 {
   for (int i = 0; i <= loadedUserNum; i++)
   {
-    if (strcmp(users[i].userId, searchUser->userId) == 0)
+    if (strcmp(users[i].username, searchUser->username) == 0)
     {
       memcpy(foundUser, &users[i], sizeof(User));
       return 0;
