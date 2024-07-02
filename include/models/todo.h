@@ -58,8 +58,14 @@ int runDelete(char *filename);
 int runClose(char *filename);
 int runList(char **files, int *numFiles, int *writeFiles);
 int runSave();
-TodoArray *runLook();
+TodoArray *runLook(char *workingFile);
+int checkTodoIdExist(int id);
 
 void appendTodo(Todo todo);
+
+int checkFileOpen();
+
+int runEdit(Todo *todo);
+int runRemove(int id);
 
 #endif

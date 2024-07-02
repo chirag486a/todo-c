@@ -13,52 +13,77 @@ char openedFile[FILENAME_MAX];
 size_t todoListDefaultCapacity = 10;
 TodoArray *todoList;
 
+int checkFileOpen()
+{
+  if (strcmp(openedFile, "") == 0)
+    return 0;
+  else
+    return 1;
+}
+
+int checkTodoIdExist(int id)
+{
+  for (size_t i = 0; i < todoList->size; i++)
+  {
+    if (todoList->todos[i].id == id)
+      return 0;
+  }
+  return 1;
+}
+int generateUniqueTodoId()
+{
+  static int currentId = 0;
+  return ++currentId;
+}
+
 void appendTodo(Todo todo)
 {
-  println("Size: %d", todoList->size);
-  println("Capacity: %d", todoList->capacity);
-
   if (todoList->size >= todoList->capacity)
   {
     todoList->capacity *= 2;
     todoList->todos = (Todo *)realloc(todoList->todos, sizeof(Todo) * todoList->capacity);
   }
+  int todoId;
+  do
+  {
+    if (todo.id > 0)
+    {
+      todoId = todo.id;
+      break;
+    }
+
+    todoId = generateUniqueTodoId();
+    println("%d", todoId);
+  } while (!checkTodoIdExist(todoId));
+
+  todo.id = todoId;
   time(&(todo.timestamp));
   todoList->todos[todoList->size++] = todo;
 }
-void removeTodoById(TodoArray *array, int id)
+void removeTodoById(int id)
 {
-  for (size_t i = 0; i < array->size; i++)
+  for (size_t i = 0; i < todoList->size; i++)
   {
-    if (array->todos[i].id == id)
+    if (todoList->todos[i].id == id)
     {
-      for (size_t j = i; j < array->size - 1; j++)
+      for (size_t j = i; j < todoList->size - 1; j++)
       {
-        array->todos[j] = array->todos[j + 1];
+        todoList->todos[j] = todoList->todos[j + 1];
       }
-      array->size--;
+      todoList->size--;
       return;
     }
   }
 }
-int checkTodoIdExist(TodoArray *array, int id)
+void editTodoById(Todo *todo)
 {
-  for (size_t i = 0; i < array->size; i++)
+  for (size_t i = 0; i < todoList->size; i++)
   {
-    if (array->todos[i].id == id)
-      return 0;
-  }
-  return 1;
-}
-void editTodoById(TodoArray *array, int id, const char *newDescription, Priority newPriority)
-{
-  for (size_t i = 0; i < array->size; i++)
-  {
-    if (array->todos[i].id == id)
+    if (todoList->todos[i].id == todo->id)
     {
-      strncpy(array->todos[i].description, newDescription, 256);
-      array->todos[i].priority = newPriority;
-      return;
+      time(&(todo->timestamp));
+      todoList->todos[i] = *todo;
+      break;
     }
   }
 }
@@ -219,7 +244,7 @@ int runClose(char *filename)
   return 0;
 }
 
-int runList(char **files, int *numFiles, int *writeFiles)
+int runList(char **files, int *allocSize, int *writeFiles)
 {
   DIR *d;
   struct dirent *dir;
@@ -233,16 +258,18 @@ int runList(char **files, int *numFiles, int *writeFiles)
   {
     if (strcmp(dir->d_name, ".") == 0 || strcmp(dir->d_name, "..") == 0)
       continue;
-    if (i == *numFiles)
+
+    if (i >= *allocSize)
     {
-      *numFiles *= 2;
-      files = realloc(files, sizeof(char *) * (*numFiles));
+      *allocSize *= 2;
+      files = realloc(files, sizeof(char *) * (*allocSize));
       if (!files)
       {
         closedir(d);
         return 1;
       }
     }
+
     int fileNameLen = strlen(dir->d_name);
     // println("%d) %s", fileNameLen, dir->d_name);
     // println("%d", sizeof(fileNameLen));
@@ -266,7 +293,19 @@ int runList(char **files, int *numFiles, int *writeFiles)
   return 0;
 }
 
-TodoArray *runLook()
+TodoArray *runLook(char *workingFile)
 {
+  strcpy(workingFile, openedFile);
   return todoList;
+}
+
+int runEdit(Todo *todo)
+{
+  editTodoById(todo);
+  return 0;
+}
+
+int runRemove(int id) {
+  removeTodoById(id);
+  return 0;
 }

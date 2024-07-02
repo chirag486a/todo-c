@@ -93,18 +93,19 @@ int listCmdHandler()
 {
   // Allocated space for file
   int allocFiles = 10;
-  int writeFiles = 0;
+  int wroteFileNum = 0;
   char **files = (char **)malloc(sizeof(char *) * allocFiles);
-  int err = runList(files, &allocFiles, &writeFiles);
+  int err = runList(files, &allocFiles, &wroteFileNum);
   if (err)
+
   {
     showError(LIST, "[Something went wrong]");
     return 1;
   }
-  displayList(files, writeFiles);
+  displayList(files, wroteFileNum);
 
   // clean memory
-  for (int i = 0; i < allocFiles; i++)
+  for (int i = 0; i < wroteFileNum; i++)
   {
     free(files[i]);
   }
@@ -118,7 +119,6 @@ int appendCmdHandler()
   Todo task;
   askTodo(&task);
   appendTodo(task);
-  println(task.description);
   return 0;
 }
 
@@ -129,12 +129,46 @@ int saveCmdHandler()
 
 int lookCmdHanlder()
 {
-  TodoArray *todoList = runLook();
-  for (size_t i = 0; i < todoList->size; i++)
-  {
-    println("%d %s", i, todoList->todos[i].description);
-  }
+  char workingFile[FILENAME_MAX];
+  TodoArray *todoList = runLook(workingFile);
+
+  displayTodos(todoList, workingFile);
+
   return 0;
+}
+
+int editCmdHandler()
+{
+  if (!checkFileOpen())
+  {
+    showError(EDIT, "File not open.");
+    return 1;
+  }
+  lookCmdHanlder();
+  int id = askId();
+  if (checkTodoIdExist(id))
+  {
+    showError(EDIT, "Id does not exist");
+    return 1;
+  }
+  Todo todo;
+  askTodo(&todo);
+  todo.id = id;
+  runEdit(&todo);
+  return 0;
+}
+
+int removeCmdHandler()
+{
+  lookCmdHanlder();
+  int id = askId();
+  runRemove(id);
+  return 0;
+}
+
+int exitCmdHandler()
+{
+  exit(EXIT_SUCCESS);
 }
 
 int runCommand(int option)
@@ -167,6 +201,15 @@ int runCommand(int option)
   case LOOK:
     return lookCmdHanlder();
     break;
+  case EDIT:
+    return editCmdHandler();
+    break;
+  case REMOVE:
+    return removeCmdHandler();
+    break;
+  case EXIT:
+    return exitCmdHandler();
+    break;
 
   default:
     break;
@@ -180,12 +223,9 @@ int initTodo(User *user)
   greetUser(user->username);
   prepTodoDir(user);
 
-  int exit = 0;
-
-  while (!exit)
+  while (1)
   {
     int option = giveOptions(user->username);
-    println("Option: %d", option);
     runCommand(option);
   }
   return 0;

@@ -13,4 +13,7 @@ void showError(int failedCmd, char *filename);
 void displayList(char **files, int writeFiles);
 void askTodo(Todo *todo);
 
+void displayTodos(TodoArray *todos, char *workingFile);
+int askId();
+
 #endif

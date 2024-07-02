@@ -5,39 +5,6 @@
 #include "views/todo_view.h"
 #include "models/todo.h"
 
-void get_current_time(char *buffer, size_t buffer_size)
-{
-  time_t raw_time;
-  struct tm *time_info;
-
-  time(&raw_time);
-  time_info = localtime(&raw_time);
-
-  char am_pm[3];
-  int hour = time_info->tm_hour;
-
-  if (hour >= 12)
-  {
-    strcpy(am_pm, "PM");
-    if (hour > 12)
-      hour -= 12;
-  }
-  else
-  {
-    strcpy(am_pm, "AM");
-    if (hour == 0)
-      hour = 12;
-  }
-
-  snprintf(buffer, buffer_size, "%04d-%02d-%02d %02d:%02d %s",
-           time_info->tm_year + 1900,
-           time_info->tm_mon + 1,
-           time_info->tm_mday,
-           hour,
-           time_info->tm_min,
-           am_pm);
-}
-
 void showHelp()
 {
 
@@ -109,6 +76,10 @@ int identifyCommand(const char *command)
   {
     return LOOK;
   }
+  else if (strcmp(command, "exit") == 0)
+  {
+    return EXIT;
+  }
   else
   {
     return UNKNOWN;
@@ -140,6 +111,8 @@ const char *getCommandString(int command)
     return "remove";
   case EDIT:
     return "edit";
+  case EXIT:
+    return "exit";
   case LOOK:
     return "look";
   default:
@@ -193,6 +166,38 @@ void displayList(char **files, int writeFiles)
   }
 }
 
+char *stringifyTime(time_t raw_time, char *buffer, size_t bufferSize)
+{
+  struct tm *time_info;
+
+  time_info = localtime(&raw_time);
+
+  char am_pm[3];
+  int hour = time_info->tm_hour;
+
+  if (hour >= 12)
+  {
+    strcpy(am_pm, "PM");
+    if (hour > 12)
+      hour -= 12;
+  }
+  else
+  {
+    strcpy(am_pm, "AM");
+    if (hour == 0)
+      hour = 12;
+  }
+
+  snprintf(buffer, bufferSize, "%04d-%02d-%02d %02d:%02d %s",
+           time_info->tm_year + 1900,
+           time_info->tm_mon + 1,
+           time_info->tm_mday,
+           hour,
+           time_info->tm_min,
+           am_pm);
+  return buffer;
+}
+
 void askTodo(Todo *todo)
 {
   println("Enter task Todo [NOTE: not long then %d character]", TODO_DESCRIPTION_SIZE);
@@ -225,4 +230,53 @@ void askTodo(Todo *todo)
     }
     break;
   }
+}
+char *getPriorityString(Priority p) {
+  switch (p)
+  {
+  case CRITICAL:
+    return "critical";
+  case HIGH:
+    return "high";
+  case MEDIUM:
+    return "medium";
+  case LATER:
+    return "later";
+
+  default:
+    return "unknown";
+  }
+}
+void displayTodos(TodoArray *todos, char *workingFile)
+{
+  // Print the table header
+  println("%-11s | %-75s | %-8s | %s", "ID", "Description", "Priority", "Creation Time");
+
+  for (size_t i = 0; i < 100; i++)
+  {
+    printf("-");
+  }
+  println("");
+
+  char buffer[20];
+  for (size_t i = 0; i < todos->size; i++)
+  {
+    Todo todo = todos->todos[i];
+    stringifyTime(todo.timestamp, buffer, sizeof(buffer));
+
+    println("%-11d | %-75s | %-8s | %s",
+            todo.id,
+            todo.description,
+            getPriorityString(todo.priority),
+            buffer);
+  }
+}
+
+int askId()
+{
+  int i;
+  println("Please provide the id for todo to be edited");
+  scanf("%d", &i);
+  flushStdin();
+  return i;
 }
