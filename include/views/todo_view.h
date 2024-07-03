@@ -9,7 +9,7 @@ int giveOptions();
 void showHelp();
 
 void askFileName(char *filename);
-void showError(int failedCmd, char *filename);
+void showError(int failedCmd, char *err);
 void displayList(char **files, int writeFiles);
 void askTodo(Todo *todo);
 

@@ -8,33 +8,73 @@
 #include "utils/utils.h"
 #include "models/user.h"
 
+/*
+ * Global variable: users
+ * ----------------------
+ * An array to store user data.
+ *
+ * Note:
+ *  - The size of the array is defined by the constant `MAX_USERS`.
+ */
 User users[MAX_USERS];
 
+/*
+ * Global variable: loadedUserNum
+ * ------------------------------
+ * Stores the number of users loaded from the file.
+ */
 int loadedUserNum;
 
+/*
+ * Function: login
+ * --------------------
+ * Authenticates a user by checking their credentials against stored user data.
+ *
+ * Parameters:
+ *  - loginUser: A pointer to a User structure containing the login credentials.
+ *  - foundUser: A pointer to a User structure where the found user data will be stored.
+ *
+ * Returns:
+ *  - 0 if login is successful.
+ *  - 1 if the user is not found.
+ *  - 2 if the password does not match.
+ *
+ * Notes:
+ *  - This function uses the `findUser` function to locate the user.
+ *  - The passwords are compared using `strcmp`.
+ */
 int login(User *loginUser, User *foundUser)
 {
-  if (findUser(loginUser, foundUser) != 0) return 1;
+  if (findUser(loginUser, foundUser) != 0)
+    return 1;
   if (strcmp(foundUser->userpassword, loginUser->userpassword) != 0)
     return 2;
 
   return 0;
 }
 
-// Generates Unique Id
+/*
+ * Function: generateUniqueId
+ * ---------------------------
+ * Generates a unique 10-digit ID and stores it in the provided character array.
+ *
+ * Parameters:
+ *  - id: A pointer to a character array where the generated ID will be stored.
+ */
 void generateUniqueId(char *id)
 {
-  // Seed the random number generator
-  srand(time(NULL)); 
+  // Seed the random number generator with the current time
+  srand(time(NULL)); // This initializes the random number generator with a seed based on the current time.
 
-  // Generate a large random number
-  unsigned long long random_number = (unsigned long long)rand() * (RAND_MAX ) + rand(); 
+  // Generate a large random number by combining two calls to rand()
+  unsigned long long random_number = (unsigned long long)rand() * (RAND_MAX) + rand();
+  // This line creates a large random number by multiplying the result of rand() by RAND_MAX and adding another call to rand().
 
-  // Format as a zero-padded 10-digit number
+  // Format the random number as a zero-padded 10-digit string and store it in the provided character array
   sprintf(id, "%010llu", random_number % 10000000000ULL);
+  // This line uses sprintf() to format the random number as a zero-padded 10-digit string and store it in the array pointed to by `id`.
 }
 
-// Returns no. of users loaded
 int loadUser()
 {
   FILE *fp;
@@ -55,9 +95,17 @@ int loadUser()
 }
 
 /*
-RETURNS 1 for true
-RETURNS 2 for false
-*/
+ * Function: idExist
+ * -----------------
+ * Checks if a given ID exists in the array of users.
+ *
+ * Parameters:
+ *  - id: A pointer to a string representing the ID to check.
+ *
+ * Returns:
+ *  - 1 if the ID exists.
+ *  - 0 if the ID does not exist.
+ */
 int idExist(char *id)
 {
 
@@ -72,6 +120,18 @@ int idExist(char *id)
   return 0;
 }
 
+/*
+ * Function: isUniqueUserName
+ * --------------------------
+ * Checks if a username is unique by comparing it with usernames in the array of users.
+ *
+ * Parameters:
+ *  - user: A pointer to a User structure containing the username to check.
+ *
+ * Returns:
+ *  - 1 if the username is not unique (already exists).
+ *  - 0 if the username is unique (does not exist).
+ */
 int isUniqueUserName(User *user)
 {
   for (int i = 0; i < loadedUserNum; i++)
@@ -85,10 +145,19 @@ int isUniqueUserName(User *user)
 }
 
 /*
-Returns 1: Username Already Taken
-Returns 2: Unable to Initialize User Directory
-Returns 0: On success
-*/
+ * Function: initUser
+ * ------------------
+ * Initializes a new user by generating a unique ID, checking username uniqueness,
+ * creating a user directory, and setting up user data.
+ *
+ * Parameters:
+ *  - user: A pointer to a User structure containing the new user's information.
+ *
+ * Returns:
+ *  - 0 if user initialization is successful.
+ *  - 1 if the username is already taken.
+ *  - 2 if there was an error creating the user directory.
+ */
 int initUser(User *user)
 {
   do
@@ -101,10 +170,10 @@ int initUser(User *user)
     println("Username already taken");
     return 1;
   }
-
   char path[64] = USER_TODO_DATA_DIR;
   strcat(path, user->userId);
   println(path);
+
   int status = mkdir(path, 0777);
 
   if (status == 0)
@@ -119,12 +188,6 @@ int initUser(User *user)
   return 0;
 }
 
-/*
-Returns 1: Username Already Taken
-Returns 2: Unable to Initialize User Directory
-Returns 0: On Success
-
-*/
 int signUp(User *newUser, User *storedUser)
 {
 
@@ -135,7 +198,7 @@ int signUp(User *newUser, User *storedUser)
     println("Error opening file");
     return -1;
   }
-  
+
   // Store User
   int initStatus = initUser(newUser);
   if (initStatus != 0)

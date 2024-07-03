@@ -8,9 +8,16 @@
 #include <stdlib.h>
 #include <time.h>
 
+// Directory path for user todo data
 char userTodoDir[FILENAME_MAX] = USER_TODO_DATA_DIR;
+
+// Path of the current opened file
 char openedFile[FILENAME_MAX];
+
+// Dfault capacity for todo list array
 size_t todoListDefaultCapacity = 10;
+
+// Pointer to the todo list array
 TodoArray *todoList;
 
 int checkFileOpen()
@@ -60,6 +67,15 @@ void appendTodo(Todo todo)
   time(&(todo.timestamp));
   todoList->todos[todoList->size++] = todo;
 }
+
+/*
+ * Function: removeTodoById
+ * ------------------------
+ * Removes a todo from the todo list by its ID.
+ *
+ * Parameters:
+ *  - id: The ID of the todo to remove.
+ */
 void removeTodoById(int id)
 {
   for (size_t i = 0; i < todoList->size; i++)
@@ -75,6 +91,15 @@ void removeTodoById(int id)
     }
   }
 }
+
+/*
+ * Function: editTodoById
+ * ----------------------
+ * Edits a todo in the todo list by its ID.
+ *
+ * Parameters:
+ *  - todo: Pointer to the todo structure containing the updated todo information.
+ */
 void editTodoById(Todo *todo)
 {
   for (size_t i = 0; i < todoList->size; i++)
@@ -88,6 +113,14 @@ void editTodoById(Todo *todo)
   }
 }
 
+/*
+ * Function: freeTodoArray
+ * -----------------------
+ * Frees memory allocated for the todo list array.
+ *
+ * Parameters:
+ *  - array: Pointer to the TodoArray structure to free.
+ */
 void freeTodoArray(TodoArray *array)
 {
   free(array->todos);
@@ -101,6 +134,19 @@ void prepTodoDir(const User *user)
   println("Setting user directory: %s", userTodoDir);
 }
 
+/*
+ * Function: loadTodos
+ * -------------------
+ * Loads todos from a specified file into the todo list.
+ *
+ * Parameters:
+ *  - filename: The name of the file to load todos from.
+ *
+ * Returns:
+ *  - 0 on success.
+ *  - 1 if an error occurred during loading.
+ *  - -1 if the file could not be opened.
+ */
 int loadTodos(char *filename)
 {
   FILE *fp = fopen(filename, "rb");
@@ -305,7 +351,18 @@ int runEdit(Todo *todo)
   return 0;
 }
 
-int runRemove(int id) {
+int runRemove(int id)
+{
   removeTodoById(id);
+  return 0;
+}
+
+int runExit()
+{
+  if (!checkFileOpen())
+  {
+    runClose(openedFile);
+    return 1;
+  }
   return 0;
 }

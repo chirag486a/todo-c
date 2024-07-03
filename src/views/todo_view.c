@@ -149,10 +149,12 @@ void askFileName(char *filename)
   removeNewLine(filename);
 }
 
-void showError(int failedCmd, char *filename)
+void showError(int failedCmd, char *err)
 {
   const char *cmd = getCommandString(failedCmd);
-  println("Unable to %s on file %s", cmd, filename);
+  // println("Unable to %s on file %s", cmd, filename);
+  println("Could not intepret %s. [ %s ]", cmd, err);
+  println("Type h/help for help");
 }
 
 void displayList(char **files, int writeFiles)

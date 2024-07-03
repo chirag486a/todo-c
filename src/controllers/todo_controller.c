@@ -6,31 +6,32 @@
 #include <stdlib.h>
 
 /*
+ * TODO options:
+ * 
+ * h/help - help
+ * n/new - create new file
+ * o/open - open file
+ * d/delete - delete file
+ * c/close - close file
+ * 
+ * a/add/append - add/append to do file {OPEN}
+ * r/remove - remove todo from file {OPEN}
+ * e/edit - edit todo from file {OPEN}
+ * 
+ * show
+ * show 1 {priority} [1,2,3,4] [Critical, High, Medium, Later]
+ * 
+ */
 
-TODO options
-
-h/help - help
-n/new - create new file
-o/open - open file
-d/delete - delete file
-c/close - close file
-
-a/add/append - add/append to do file {OPEN}
-r/remove - remove todo from file {OPEN}
-e/edit - edit todo from file {OPEN}
-
-show
-show 1 {priority} [1,2,3,4] [Critical, High, Medium, Later]
-
-
-todo
-struct todo {
-
-
-}
-
-*/
-
+/*
+ * Function: newCmdHandler
+ * -----------------------
+ * Handles the 'new' command to create a new todo file.
+ *
+ * Returns:
+ *  - 0 on success.
+ *  - 1 on failure.
+ */
 int newCmdHandler()
 {
   char filename[FILENAME_MAX];
@@ -44,6 +45,15 @@ int newCmdHandler()
   return 0;
 }
 
+/*
+ * Function: openCmdHandler
+ * ------------------------
+ * Handles the 'open' command to open an existing todo file.
+ *
+ * Returns:
+ *  - 0 on success.
+ *  - 1 on failure.
+ */
 int openCmdHandler()
 {
   char filename[FILENAME_MAX];
@@ -57,6 +67,15 @@ int openCmdHandler()
   return 0;
 }
 
+/*
+ * Function: deleteCmdHandler
+ * --------------------------
+ * Handles the 'delete' command to delete an existing todo file.
+ *
+ * Returns:
+ *  - 0 on success.
+ *  - 1 on failure.
+ */
 int deleteCmdHandler()
 {
   char filename[FILENAME_MAX];
@@ -70,12 +89,29 @@ int deleteCmdHandler()
   return 0;
 }
 
+/*
+ * Function: clearCmdHandler
+ * -------------------------
+ * Handles the 'clear' command to clear the terminal screen.
+ *
+ * Returns:
+ *  - 0 on success.
+ */
 int clearCmdHandler()
 {
   clearTerminal();
   return 0;
 }
 
+/*
+ * Function: closeCmdHandler
+ * -------------------------
+ * Handles the 'close' command to close the currently opened todo file.
+ *
+ * Returns:
+ *  - 0 on success.
+ *  - 1 if no file is currently open.
+ */
 int closeCmdHandler()
 {
   char filename[FILENAME_MAX];
@@ -89,6 +125,16 @@ int closeCmdHandler()
 
   return 0;
 }
+
+/*
+ * Function: listCmdHandler
+ * ------------------------
+ * Handles the 'list' command to list all todo files in the user's directory.
+ *
+ * Returns:
+ *  - 0 on success.
+ *  - 1 on failure.
+ */
 int listCmdHandler()
 {
   // Allocated space for file
@@ -114,6 +160,14 @@ int listCmdHandler()
   return 0;
 }
 
+/*
+ * Function: appendCmdHandler
+ * --------------------------
+ * Handles the 'append' command to add a new todo to the currently opened file.
+ *
+ * Returns:
+ *  - 0 on success.
+ */
 int appendCmdHandler()
 {
   Todo task;
@@ -122,11 +176,28 @@ int appendCmdHandler()
   return 0;
 }
 
+/*
+ * Function: saveCmdHandler
+ * ------------------------
+ * Handles the 'save' command to save changes to the currently opened todo file.
+ *
+ * Returns:
+ *  - 0 on success.
+ *  - 1 on failure.
+ */
 int saveCmdHandler()
 {
   return runSave();
 }
 
+/*
+ * Function: lookCmdHanlder
+ * ------------------------
+ * Handles the 'look' command to display the todos in the currently opened file.
+ *
+ * Returns:
+ *  - 0 on success.
+ */
 int lookCmdHanlder()
 {
   char workingFile[FILENAME_MAX];
@@ -137,6 +208,15 @@ int lookCmdHanlder()
   return 0;
 }
 
+/*
+ * Function: editCmdHandler
+ * ------------------------
+ * Handles the 'edit' command to edit a todo in the currently opened file.
+ *
+ * Returns:
+ *  - 0 on success.
+ *  - 1 on failure.
+ */
 int editCmdHandler()
 {
   if (!checkFileOpen())
@@ -158,6 +238,14 @@ int editCmdHandler()
   return 0;
 }
 
+/*
+ * Function: removeCmdHandler
+ * --------------------------
+ * Handles the 'remove' command to remove a todo from the currently opened file.
+ *
+ * Returns:
+ *  - 0 on success.
+ */
 int removeCmdHandler()
 {
   lookCmdHanlder();
@@ -166,11 +254,37 @@ int removeCmdHandler()
   return 0;
 }
 
+/*
+ * Function: exitCmdHandler
+ * ------------------------
+ * Handles the 'exit' command to exit the application, saving changes if necessary.
+ *
+ * Returns:
+ *  - 0 on success.
+ */
 int exitCmdHandler()
 {
+  if (runExit() == 1)
+  {
+    showError(SAVE, "Changes were not saved.");
+    exit(EXIT_FAILURE);
+  }
+
   exit(EXIT_SUCCESS);
 }
 
+/*
+ * Function: runCommand
+ * --------------------
+ * Executes a command based on the given option.
+ *
+ * Parameters:
+ *  - option: The command option to execute.
+ *
+ * Returns:
+ *  - 0 on success.
+ *  - 1 on failure or unknown command.
+ */
 int runCommand(int option)
 {
   switch (option)
@@ -212,6 +326,8 @@ int runCommand(int option)
     break;
 
   default:
+    showError(UNKNOWN, "Unknown command");
+    return 0;
     break;
   }
   return 0;
@@ -222,10 +338,14 @@ int initTodo(User *user)
   clearTerminal();
   greetUser(user->username);
   prepTodoDir(user);
+  return 0;
+}
 
+int runApp()
+{
   while (1)
   {
-    int option = giveOptions(user->username);
+    int option = giveOptions();
     runCommand(option);
   }
   return 0;

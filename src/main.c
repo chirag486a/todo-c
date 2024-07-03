@@ -1,22 +1,26 @@
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// 1. Assign user 10-digit Id
-// 2 Based on that immediately create directory for user
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// 1. Create view for Todo [Add, Delete, Edit]
-// 2. Create TODO Data structure
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/*
+features left
+  ~ LOGOUT
+  ~ DISCARD if not save
+  ~ SORT BY creation date, priority
+
+*/
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
 
+// IMPORT CONTROLLERS
 #include "controllers/user_controller.h"
 #include "controllers/todo_controller.h"
 
+// Start Application
 int main()
 {
+  
   loadUser();
   User user;
 
@@ -33,6 +37,7 @@ int main()
   };
 
   initTodo(&user);
+  runApp();
 
   return 0;
 }
