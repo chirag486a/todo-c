@@ -127,7 +127,7 @@ void greetUser(const char *userName)
   println("<usage>: Enter h for help or to use todo functions");
 }
 
-int giveOptions(char *username)
+int giveOptions()
 {
 
   const int maxOptionLen = 10;
